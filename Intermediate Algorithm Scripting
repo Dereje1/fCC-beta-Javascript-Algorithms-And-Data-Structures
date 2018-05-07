@@ -13,3 +13,146 @@ function sumAll(arr) {
 }
 
 console.log(sumAll([1, 4]));
+
+//Diff Two Arrays
+function diffArray(arr1, arr2) {
+  var newArr = [];
+  arr1.forEach((e)=>{
+    if(!arr2.includes(e)){newArr.push(e)}
+  })
+  arr2.forEach((e)=>{
+    if(!arr1.includes(e)){newArr.push(e)}
+  })
+  console.log(newArr)
+  return newArr;
+}
+
+diffArray([1, 2, 3, 5], [1, 2, 3, 4, 5]);
+
+//Seek and Destroy
+
+function destroyer(arr) {
+  // Remove all the values
+  //from MDN: The arguments object is not an Array. It is similar to an Array, but does not have any Array properties except length. For example, it does not have the pop method. However it can be converted to a real Array:
+  var args = [].slice.call(arguments)
+  
+  let comp = args.slice(1)
+  
+  let filteredarr = arr.filter((o)=>{
+    return !comp.includes(o)
+  })
+  
+  return filteredarr;
+}
+
+destroyer([1, 2, 3, 1, 2, 3], 2, 3);
+
+//Wherefore art thou
+
+function whatIsInAName(collection, source) {//refator!!
+  // What's in a name?
+  var arr = [];
+  let flag = true;
+  // Only change code below this line
+  collection.forEach((c)=>{
+    let flag = true;
+    let collKeys = Object.keys(c)
+    let sourceKeys = Object.keys(source)
+    sourceKeys.forEach((k)=>{
+      if(!collKeys.includes(k)){flag=false;}
+    })
+    if(flag){
+      let innerflag = true;
+      sourceKeys.forEach((k)=>{
+        if(source[k]!==c[k]){
+          innerflag=false
+        }
+      })
+      if(innerflag)arr.push(c)
+    }
+    
+  })
+  // Only change code above this line
+  return arr;
+}
+
+whatIsInAName([{ "apple": 1, "bat": 2 }, { "apple": 1 }, { "apple": 1, "bat": 2, "cookie": 2 }], { "apple": 1, "cookie": 2 });
+
+//Spinal Tap Case
+function spinalCase(str) {//a fanagled solution due to lack of regex understanding
+  // "It's such a fine line between stupid, and clever."
+  // --David St. Hubbins
+  let a= /(?=[A-Z])/
+  let b= /[^a-zA-Z]/g
+  
+  if(str.match(b)){
+    let q =  str.split(b)
+    let z = []
+    q.forEach((w)=>{
+      z=[...z,...(w.split(a))]
+    })
+    return z.join('-').toLowerCase()
+  }
+  else{
+    return str.split(a).join('-').toLowerCase()
+  }
+}
+
+spinalCase("AllThe-small Things");
+
+//Pig Latin
+function translatePigLatin(str) {
+  
+  let regMatcher = /[^aeiou]*/  //Note IMPORTANT when testing know the difference between 'matches characters that occur zero or more times.' and "matches characters that occur 1 or more times." * = 0 , + = 1
+  let testMatch = str.match(regMatcher)
+  console.log(testMatch)
+  if(!testMatch[0].length){
+    return str+'way'
+  }
+  return str.substr(testMatch[0].length) + testMatch + 'ay';
+}
+
+translatePigLatin("ekkkyuiwes");
+
+//Search and Replace
+
+function myReplace(str, before, after) {
+  let regTester= new RegExp(before)
+  let testMatch=str.match(regTester)
+  //first test if string is even in the sentence
+  if(testMatch){
+    // then test for upper case first letter
+    let upTest = /[A-Z]/.test(before[0])
+    if(upTest){
+      return str.replace(before,after[0].toUpperCase()+after.substr(1))
+    }
+    return str.replace(before,after)
+  }
+  return str;
+}
+
+myReplace("A quick brown fox Jumped over the lazy dog", "Jumped", "leaped");
+
+//DNA Pairing
+function pairElement(str) {
+  
+  let bp = str.split('').map((s)=>{
+    switch (s) {
+      case "C":
+        return [s,"G"]
+        break;
+      case "G":
+        return [s,"C"]
+        break;
+      case "A":
+        return [s,"T"]
+        break;
+      case "T":
+        return [s,"A"]
+        break;
+    }
+  })
+  return bp;
+}
+
+pairElement("GCG");
