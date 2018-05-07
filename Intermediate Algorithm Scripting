@@ -366,3 +366,148 @@ function smallestCommons(arr) {
 
 smallestCommons([1,5]);
 
+//Drop it
+
+function dropElements(arr, func) {
+  // Drop them elements.
+  for(var i=0;i<arr.length;i++){
+    if(func(arr[i]))break;
+  }
+  return arr.slice(i);
+}
+
+dropElements([1, 2, 3], function(n) {return n < 3; });
+
+//Steamroller
+function steamrollArray(arr) {
+  // I'm a steamroller, baby
+  let rolled;
+  function steamy(sroll){
+    rolled=true;
+    let x = sroll.reduce((combined,curr)=>{
+      if(Array.isArray(curr)){
+        return [...combined,...curr]
+      }
+      else{
+        return[...combined,curr]
+      }
+    },[])
+    x.forEach((a)=>{
+      if(Array.isArray(a)){
+        rolled = false;
+      }
+    })
+    if(rolled){
+      return x
+    }
+    else{
+      return steamy(x)
+    }
+  }
+  return steamy([...arr])
+}
+
+steamrollArray([1, [2], [3, [[4]]]]);
+
+//Binary Agents
+function binaryAgent(str) {
+  let strArr=str.split(" ")
+  let newStr=''
+  strArr.forEach((b)=>{
+    let bLetter= b.split('').reverse()
+    let total = 0
+    bLetter.forEach((l,idx)=>{
+     let dec = Math.pow(2,idx)*l
+     total+=dec
+    })
+    newStr+=(String.fromCharCode(total))
+  })
+  
+  return newStr;
+}
+
+binaryAgent("01000001 01110010 01100101 01101110 00100111 01110100 00100000 01100010 01101111 01101110 01100110 01101001 01110010 01100101 01110011 00100000 01100110 01110101 01101110 00100001 00111111");
+
+//Everything Be True
+function truthCheck(collection, pre) {
+  // Is everyone being true?
+  let preSwitch = true
+  collection.forEach((u)=>{
+    for (var item in u){
+      if(!u[pre]){
+        preSwitch = false
+      }
+    }
+  })
+  return preSwitch;
+}
+
+truthCheck([{"user": "Tinky-Winky", "sex": "male"}, {"user": "Dipsy"}, {"user": "Laa-Laa", "sex": "female"}, {"user": "Po", "sex": "female"}], "sex");
+
+//Arguments Optional
+
+function addTogether() {
+  if (arguments.length===2){
+    if(typeof(arguments[0])==="number" && typeof(arguments[1])==="number")
+    return arguments[0]+ arguments[1]
+  }
+  else{
+    let firstAdd = (arguments[0])
+    if(!Number(firstAdd)){
+      return undefined
+    }
+    return function t(a){
+      if(typeof(a)!=="number"){
+        return undefined
+      }
+      return (a+firstAdd)
+    }
+  }
+}
+
+addTogether(3,2);
+
+//Make a Person
+
+var Person = function(firstAndLast) {
+  // Complete the method below and implement the others similarly
+  this.getFullName = ()=> {
+    return firstAndLast;
+  };
+  this.getFirstName = ()=> {
+    return firstAndLast.split(' ')[0];
+  };
+  this.getLastName = ()=> {
+    return firstAndLast.split(' ')[1];
+  };
+  this.setFirstName = (firstName)=>{
+    firstAndLast = firstName + " " + firstAndLast.split(' ')[1]
+  }
+  this.setLastName = (lastName)=>{
+    firstAndLast = firstAndLast.split(' ')[0] + " " + lastName
+  }
+  this.setFullName = (fullName)=>{
+    firstAndLast = fullName
+  }
+};
+
+var bob = new Person('Bob Ross');
+bob.setFirstName("Haskell")
+bob.getFullName();
+
+//Map the Debris
+function orbitalPeriod(arr) {
+  var GM = 398600.4418;
+  var earthRadius = 6367.4447;
+  let orbitalArr=[]
+  arr.forEach((a)=>{
+    let newObj={}
+    let t= Math.PI*2*(Math.pow(Math.pow(a.avgAlt+earthRadius,3)/GM,0.5))
+    newObj.name = a.name
+    newObj.orbitalPeriod = Number(t.toFixed())
+    orbitalArr.push(newObj)
+  })
+  return orbitalArr
+}
+
+orbitalPeriod([{name: "iss", avgAlt: 413.6}, {name: "hubble", avgAlt: 556.7}, {name: "moon", avgAlt: 378632.553}]);
