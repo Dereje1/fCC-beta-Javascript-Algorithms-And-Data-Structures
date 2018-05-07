@@ -156,3 +156,213 @@ function pairElement(str) {
 }
 
 pairElement("GCG");
+
+//Missing letters
+function fearNotLetter(str) {
+  let charArr = str.split('').map((l)=>{
+    return l.charCodeAt(0)
+  })
+ 
+  for(let i=0;i<charArr.length;i++){
+    if ((charArr[0]+i)!==charArr[i]){
+      return (String.fromCharCode(charArr[i]-1))
+    }
+  }
+  
+  return undefined;
+}
+
+fearNotLetter("abde");
+
+//Sorted Union
+
+function uniteUnique(arr) {
+  let flattened=[]
+  let unique=[]
+  var args = [].slice.call(arguments); //convert args to array
+  args.forEach((a)=>{
+    flattened=[...flattened,...a]
+  })
+  flattened.forEach((f)=>{
+    if(!unique.includes(f)){
+      unique.push(f)
+    }
+  })
+  return unique;
+}
+
+uniteUnique([1, 3, 2], [5, 2, 1, 4], [2, 1]);
+
+//Convert HTML Entities
+function convertHTML(str) {
+  // &colon;&rpar;
+  let myReg =/&|<|>|"|'/ig
+  let test = myReg.test(str)
+  if(!test){
+    return str
+  }
+  else{
+    let allMatches = str.match(myReg)
+    allMatches.forEach((m)=>{
+      switch (m){
+        case "&":
+          str=str.replace(m,"&amp;")
+          break;
+        case "<":
+          str=str.replace(m,"&lt;")
+          break;
+        case ">":
+          str=str.replace(m,"&gt;")
+          break;
+        case "\"":
+          str=str.replace(m,"&quot;")
+          break;
+        case "\'":
+          str=str.replace(m,"&apos;")
+          break;
+      }
+    })
+    return str;
+  }
+}
+
+convertHTML("Dolce & Gabbana");
+
+//Sum All Odd Fibonacci Numbers
+
+function sumFibs(num) {
+  let fibOdd = fibs(num).filter((f)=>{
+    return f%2!==0
+  })
+  let fibOddSum = fibOdd.reduce((sum,curr)=>{
+    return sum+curr
+  })
+  return fibOddSum;
+}
+
+let fibs = function(n){
+  let counter=2;
+  let fibArr=[1,1]
+  while (fibArr[counter-1]<=n){
+    let newFibAdd = fibArr[counter-2]+fibArr[counter-1]
+    if(newFibAdd<=n){fibArr.push(newFibAdd)}
+    counter++
+  }
+  return fibArr
+}
+sumFibs(75025);
+
+//Sum All Primes
+function sumPrimes(num) {
+  let sum=0 
+ for(let i=2;i<=num;i++){
+    if(isPrime(i)){
+      sum+=i
+    }
+  } 
+  return sum;
+}
+function isPrime(p){
+  for(let i=2;i<p;i++){
+    if(p%i===0){
+      return false
+    }
+  }
+  return true
+}
+sumPrimes(977);
+
+//Smallest Common Multiple
+
+function primeFactor(n){//generates prime factors for any number
+  let primes =[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199]
+
+  let factorCollect=[]
+  let collected = false;
+  
+  function currentFactor(t){//recursive
+    let factored = factorCollect.reduce((prod,curr)=>{
+        return prod*curr
+    },1)
+    
+    if(factored===n){
+      return factorCollect
+    }
+    for(let i=0 ;i<primes.length;i++){
+      if(t%primes[i]===0){
+        factorCollect.push(primes[i])
+        return currentFactor(t/primes[i])
+      }
+    }
+  }
+  return currentFactor(n)
+}
+
+function LCM(a,b){//returns LCM for 2 numbers
+  let pFactora = primeFactor(a)
+  let pFactorb = primeFactor(b)
+  let occura={}
+  let occurb={}
+  pFactora.forEach((p)=>{
+    occura[p]?occura[p]=occura[p]+1:occura[p]=1
+  })
+  pFactorb.forEach((p)=>{
+    occurb[p]?occurb[p]=occurb[p]+1:occurb[p]=1
+  })
+  
+  //get only unique factors
+  let occurc={}
+  let c = Array.from(new Set([...pFactora,...pFactorb]))
+  c.forEach((y)=>{
+    if((occurb[y])&&(occura[y])){
+      if (occura[y]>occurb[y]){
+        occurc[y]=occura[y]
+      }
+      else{
+        occurc[y]=occurb[y]
+      }
+    }
+    else{
+      if(occura[y]){
+        occurc[y]=occura[y]
+      }
+      else{
+        occurc[y]=occurb[y]
+      }
+    }
+  })
+  
+  let lcm=1
+  for (let f in occurc){
+    lcm*=(Math.pow(f,occurc[f]))
+  }
+  return lcm
+}
+
+function checkMultiple(range,num){//checks if all numbers in range are divisible by multiple
+  for(let i=range[0];i<=range[1];i++){
+    if(num%i!==0)return false
+  }
+  return true
+}
+
+function smallestCommons(arr) {
+  let sortedArr = arr.sort((a,b)=>{
+    return a-b
+  })
+  let arrSpread =[]
+  for(let i=sortedArr[0];i<=sortedArr[1];i++){
+    arrSpread.push(i)
+  }
+  let lastMultiple = LCM(arrSpread[0],arrSpread[1])
+  arrSpread.forEach((n,idx)=>{
+    if(!checkMultiple(arr,lastMultiple) && (idx>1)){
+      lastMultiple = LCM(arrSpread[idx],lastMultiple)
+    }
+    console.log(idx,lastMultiple)
+  })
+  return lastMultiple
+}
+
+smallestCommons([1,5]);
+
