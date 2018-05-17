@@ -52,9 +52,10 @@ function getChange(allUnits,fullChangeRequired){
   function unitChange(units,changeRequired){//recursive unit change could use further refactoring
     let changeCounter=0; //counter for a particular unit
     while(true){
-      let changeFullfilled = (changeCounter+1)*units[0][1]>changeRequired;
-      let availableReached = (changeCounter+1)*units[0][1]>units[0][2];
-      if(changeFullfilled||availableReached){
+      const nextIncrementTest = (changeCounter+1)*units[0][1];//total change at next unit increment
+      const changeFullfilled = nextIncrementTest > changeRequired;
+      const availableReached = nextIncrementTest > units[0][2];
+      if(changeFullfilled || availableReached){
           if(changeCounter*units[0][1]!=0){
             builtChange.push([units[0][0],changeCounter*units[0][1]]);
           }
