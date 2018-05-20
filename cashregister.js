@@ -65,8 +65,7 @@ function getChange(allUnits,fullChangeRequired){
           if(changeRemaining>0){//still more change required
             const newUnits = [...units];
             newUnits.shift();//remove active unit and go to next
-            unitChange(newUnits,changeRemaining);//call recursive function again
-            break;//important must break even after calling the recursive function!!
+            return unitChange(newUnits,changeRemaining);//call recursive function again
           }
           else{//no more change required
             break;
