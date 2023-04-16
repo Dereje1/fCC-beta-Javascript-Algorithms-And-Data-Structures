@@ -34,3 +34,57 @@ function convertToRoman(num) {
 }
 
 convertToRoman(3999);
+
+//or...
+const obj = {
+  M: 1000,
+  CM: 900,
+  D: 500,
+  CD: 400,
+  C: 100,
+  XC: 90,
+  L: 50,
+  XL: 40,
+  X: 10,
+  IX: 9,
+  V: 5,
+  IV: 4,
+  I: 1,
+}
+
+const getNumeral = (hrv, rpt, prev) => {
+ const numerals = Object.keys(obj)
+ let capturedNumeral = ''
+ for(const numeral of numerals){
+   if (obj[numeral] === hrv){
+     capturedNumeral = numeral
+     break
+   }
+ }
+ return `${prev}${capturedNumeral.repeat(rpt)}`
+}
+
+function convertToRoman(num, prev='') {
+  const values = Object.values(obj)
+  let hrv = 0;
+  // find highest roman value
+  for(const value of values){
+    if(num >= value){
+      hrv = value;
+      break
+    }
+  }
+  // find how many times to repeat the highest value
+  const repeat = Math.floor(num/hrv)
+  // get the numerals
+  const str = getNumeral(hrv, repeat, prev)
+  // find what remains
+  const remainder = num%hrv
+  if(remainder){
+    return convertToRoman(remainder, str)
+  }else{
+    return str
+  }
+}
+
+console.log(convertToRoman(83));
