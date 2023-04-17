@@ -79,3 +79,84 @@ function getChange(allUnits,fullChangeRequired){
   }
   return builtChange;
 }
+
+/* another way... */
+
+// keep this sorted descending
+const currencyUnitObject = {
+  "ONE HUNDRED": 100.00,
+  TWENTY: 20.00,
+  TEN: 10.00,
+  FIVE: 5.00,
+  ONE: 1.00,
+  QUARTER: 0.25,
+  DIME: 0.1,
+  NICKEL: 0.05,
+  PENNY: 0.01,
+}
+
+const getRounded = (val) => Math.round((val + Number.EPSILON) * 100) / 100
+
+const findChange = (available, changeRequired, change = []) => {
+  const denominations = Object.keys(available);
+  const updatedAvailableUnits = {}
+  denominations.forEach(d => {
+    if (changeRequired >= (currencyUnitObject[d])) {
+      updatedAvailableUnits[d] = available[d]
+    }
+  })
+  const [activeUnit] = Object.keys(updatedAvailableUnits)
+  const totalUnitsAvailable = available[activeUnit]
+  const totalUnitsNeeded = Math.floor(changeRequired / currencyUnitObject[activeUnit])
+  const unitsUsed = totalUnitsNeeded - totalUnitsAvailable > 0
+    ? totalUnitsAvailable
+    : totalUnitsNeeded
+  const moreChangeRequired = getRounded(changeRequired - (unitsUsed * currencyUnitObject[activeUnit]))
+  const updatedChange = unitsUsed > 0
+    ? [...change, [activeUnit, unitsUsed * currencyUnitObject[activeUnit]]]
+    : []
+
+  if (moreChangeRequired > 0) {
+    delete updatedAvailableUnits[activeUnit]
+    return findChange(updatedAvailableUnits, moreChangeRequired, updatedChange)
+  } else {
+    if (!updatedChange.length) {
+      return { status: 'INSUFFICIENT_FUNDS' }
+    }
+    updatedAvailableUnits[activeUnit] = updatedAvailableUnits[activeUnit] - unitsUsed
+    const keys = Object.keys(updatedAvailableUnits);
+    if (keys.length === 1 && updatedAvailableUnits[keys[0]] === 0) {
+      return { status: "CLOSED" }
+    }
+    return updatedChange
+  }
+}
+
+function checkCashRegister(price, cash, cid) {
+  const drawer = cid.reduce((obj, curr) => {
+    const [unit, amount] = curr;
+    return {
+      ...obj,
+      available: {
+        ...obj.available,
+        [unit]: Math.round(amount / (currencyUnitObject[unit]))
+      },
+      total: getRounded(obj.total + amount)
+    }
+  }, { available: { ...currencyUnitObject }, total: 0 })
+
+  if (drawer.total < (cash - price)) {
+    return { status: "INSUFFICIENT_FUNDS", change: [] }
+  }
+
+  const result = findChange(drawer.available, (cash - price))
+
+  switch (result.status) {
+    case 'INSUFFICIENT_FUNDS':
+      return { status: 'INSUFFICIENT_FUNDS', change: [] }
+    case 'CLOSED':
+      return { status: "CLOSED", change: cid }
+    default:
+      return { status: 'OPEN', change: result };
+  }
+}
