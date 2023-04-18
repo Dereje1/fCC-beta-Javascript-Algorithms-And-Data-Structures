@@ -99,33 +99,37 @@ const getRounded = (val) => Math.round((val + Number.EPSILON) * 100) / 100
 
 const findChange = (available, changeRequired, change = []) => {
   const denominations = Object.keys(available);
-  const updatedAvailableUnits = {}
+  const updatedAvailable = {}
+  // first remove all denominations that are above the change required
   denominations.forEach(d => {
     if (changeRequired >= (currencyUnitObject[d])) {
-      updatedAvailableUnits[d] = available[d]
+      updatedAvailable[d] = available[d]
     }
   })
-  const [activeUnit] = Object.keys(updatedAvailableUnits)
-  const totalUnitsAvailable = available[activeUnit]
-  const totalUnitsNeeded = Math.floor(changeRequired / currencyUnitObject[activeUnit])
-  const unitsUsed = totalUnitsNeeded - totalUnitsAvailable > 0
-    ? totalUnitsAvailable
-    : totalUnitsNeeded
-  const moreChangeRequired = getRounded(changeRequired - (unitsUsed * currencyUnitObject[activeUnit]))
-  const updatedChange = unitsUsed > 0
-    ? [...change, [activeUnit, unitsUsed * currencyUnitObject[activeUnit]]]
+  // since object is sorted process highest unit only
+  const [highestUnit] = Object.keys(updatedAvailable)
+  const unitValue = currencyUnitObject[highestUnit]
+  const totalAvailableForUnit = available[highestUnit]
+  const changeTaken = changeRequired >= totalAvailableForUnit
+    ? totalAvailableForUnit
+    : Math.floor(changeRequired/unitValue) * unitValue
+  
+  const moreChangeRequired = getRounded(changeRequired - changeTaken)
+  
+  const updatedChange = changeTaken > 0
+    ? [...change, [highestUnit, changeTaken]]
     : []
 
   if (moreChangeRequired > 0) {
-    delete updatedAvailableUnits[activeUnit]
-    return findChange(updatedAvailableUnits, moreChangeRequired, updatedChange)
+    delete updatedAvailable[highestUnit]
+    return findChange(updatedAvailable, moreChangeRequired, updatedChange)
   } else {
     if (!updatedChange.length) {
       return { status: 'INSUFFICIENT_FUNDS' }
     }
-    updatedAvailableUnits[activeUnit] = updatedAvailableUnits[activeUnit] - unitsUsed
-    const keys = Object.keys(updatedAvailableUnits);
-    if (keys.length === 1 && updatedAvailableUnits[keys[0]] === 0) {
+    updatedAvailable[highestUnit] = updatedAvailable[highestUnit] - changeTaken
+    const keys = Object.keys(updatedAvailable);
+    if (keys.length === 1 && updatedAvailable[keys[0]] === 0) {
       return { status: "CLOSED" }
     }
     return updatedChange
@@ -133,18 +137,18 @@ const findChange = (available, changeRequired, change = []) => {
 }
 
 function checkCashRegister(price, cash, cid) {
-  const drawer = cid.reduce((obj, curr) => {
+  const drawer = cid.reverse().reduce((obj, curr) => {
     const [unit, amount] = curr;
     return {
       ...obj,
       available: {
         ...obj.available,
-        [unit]: Math.round(amount / (currencyUnitObject[unit]))
+        [unit]: amount
       },
       total: getRounded(obj.total + amount)
     }
-  }, { available: { ...currencyUnitObject }, total: 0 })
-
+  }, { available: { }, total: 0 })
+  
   if (drawer.total < (cash - price)) {
     return { status: "INSUFFICIENT_FUNDS", change: [] }
   }
@@ -155,7 +159,7 @@ function checkCashRegister(price, cash, cid) {
     case 'INSUFFICIENT_FUNDS':
       return { status: 'INSUFFICIENT_FUNDS', change: [] }
     case 'CLOSED':
-      return { status: "CLOSED", change: cid }
+      return { status: "CLOSED", change: cid.reverse() }
     default:
       return { status: 'OPEN', change: result };
   }
